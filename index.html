@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A1E3D">
+<title>完訓教師教學應用成效追蹤</title>
+<style>
+:root{
+  --ink:#0A1E3D;
+  --ink-70:#3D4E6E;
+  --ink-45:#7284A2;
+  --line:rgba(10,30,61,.13);
+  --hot-a:#FFB84D;
+  --hot-b:#F4881B;
+  --hot-c:#E5720C;
+  --aqua-a:#2ED9C3;
+  --aqua-b:#12A896;
+  --glass:linear-gradient(170deg,rgba(255,255,255,.90),rgba(255,255,255,.62));
+  --glass-edge:rgba(255,255,255,.85);
+  --lift:0 1px 0 rgba(255,255,255,.9) inset, 0 20px 44px -28px rgba(10,30,61,.55);
+  --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;min-height:100dvh;
+  color:var(--ink);
+  background:#EDF2F9;
+  font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Hiragino Sans TC",system-ui,sans-serif;
+  font-size:clamp(15px,1.05vw + 12.5px,16.5px);
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* ---- ambient field ---- */
+.field{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.62}
+.b1{width:52vmax;height:52vmax;left:-18vmax;top:-22vmax;background:#8FBEFF}
+.b2{width:44vmax;height:44vmax;right:-16vmax;top:6vmax;background:#7BEEDD}
+.b3{width:40vmax;height:40vmax;left:18vmax;bottom:-20vmax;background:#FFC98F}
+
+/* ---- shell ---- */
+.wrap{max-width:min(720px,100%);margin:0 auto;padding:0 clamp(13px,3vw,24px)}
+.topbar{position:sticky;top:0;z-index:40;padding-top:clamp(12px,2.2vw,18px)}
+.topbar-in{
+  background:linear-gradient(165deg,rgba(10,30,61,.94),rgba(16,42,80,.90));
+  backdrop-filter:blur(20px) saturate(1.5);
+  -webkit-backdrop-filter:blur(20px) saturate(1.5);
+  border-radius:16px;padding:13px 16px 14px;
+  box-shadow:0 1px 0 rgba(255,255,255,.16) inset, 0 16px 34px -22px rgba(10,30,61,.85);
+}
+.topbar-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.topbar-name{color:#fff;font-size:clamp(14px,1vw+11px,15.5px);font-weight:700;margin:0;letter-spacing:.02em}
+.topbar-pos{color:#9DB4DA;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.track{display:flex;gap:5px;margin-top:11px}
+.seg{
+  flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.16);
+  overflow:hidden;position:relative;border:0;padding:0;cursor:default;
+}
+.seg.tap{cursor:pointer}
+.seg i{
+  position:absolute;inset:0;border-radius:99px;transform:scaleX(0);transform-origin:left;
+  background:linear-gradient(90deg,var(--aqua-a),var(--aqua-b));
+  box-shadow:0 0 10px rgba(46,217,195,.6);
+  transition:transform .45s cubic-bezier(.22,.9,.24,1);
+}
+.seg.filled i{transform:scaleX(1)}
+.seg.here{background:rgba(255,255,255,.3)}
+.seg.here i{background:linear-gradient(90deg,var(--hot-a),var(--hot-c));box-shadow:0 0 10px rgba(244,136,27,.65);transform:scaleX(.42)}
+
+main{padding:clamp(20px,3.5vw,34px) 0 clamp(120px,16vw,150px)}
+
+/* ---- type ---- */
+.tagline{
+  display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(150deg,rgba(255,255,255,.9),rgba(255,255,255,.6));
+  border:1px solid var(--glass-edge);border-radius:99px;
+  padding:6px 15px;font-size:13.5px;font-weight:700;color:#B0620A;
+  box-shadow:0 6px 16px -12px rgba(10,30,61,.6);margin-bottom:16px;
+}
+.tagline b{width:7px;height:7px;border-radius:50%;background:linear-gradient(180deg,var(--hot-a),var(--hot-c))}
+h1{font-size:clamp(24px,3.4vw + 14px,34px);line-height:1.28;margin:0 0 14px;letter-spacing:-.015em;font-weight:800}
+.lede{color:var(--ink-70);margin:0 0 20px;font-size:clamp(15px,.8vw+13px,17px);max-width:38em}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.fact{
+  background:linear-gradient(160deg,rgba(255,255,255,.88),rgba(255,255,255,.6));
+  border:1px solid var(--glass-edge);border-radius:99px;padding:7px 15px;
+  font-size:13.5px;color:var(--ink-70);box-shadow:0 8px 18px -16px rgba(10,30,61,.7);
+}
+.note{
+  background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.66));
+  border:1px solid var(--glass-edge);border-left:4px solid var(--hot-b);
+  border-radius:3px 15px 15px 3px;
+  padding:14px 17px;font-size:14.5px;color:var(--ink-70);box-shadow:var(--lift);
+}
+.head{margin:0 0 20px}
+.head h2{font-size:clamp(20px,1.7vw+15px,25px);font-weight:800;margin:0 0 6px;letter-spacing:-.012em}
+.head p{color:var(--ink-45);font-size:14.5px;margin:0;max-width:34em}
+
+/* ---- glass card ---- */
+.q{
+  background:var(--glass);
+  backdrop-filter:blur(16px) saturate(1.35);
+  -webkit-backdrop-filter:blur(16px) saturate(1.35);
+  border:1px solid var(--glass-edge);border-radius:var(--radius);
+  padding:clamp(16px,2.2vw,21px);margin-bottom:14px;box-shadow:var(--lift);
+}
+.q.miss{border-color:rgba(224,110,74,.75);box-shadow:0 0 0 3px rgba(224,110,74,.13), var(--lift)}
+.q-l{font-size:clamp(15.5px,.6vw+14px,17px);font-weight:700;margin:0;line-height:1.5}
+.q-s{font-size:13.5px;color:var(--ink-45);margin:4px 0 0}
+.q-body{margin-top:14px}
+
+input[type=text],textarea{
+  width:100%;border:1px solid var(--line);border-radius:13px;
+  padding:12px 14px;font:inherit;font-size:16px;color:var(--ink);
+  background:rgba(255,255,255,.85);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset;
+}
+textarea{min-height:92px;resize:vertical;font-size:15.5px}
+input[type=text]:focus,textarea:focus{
+  outline:0;border-color:transparent;
+  box-shadow:0 0 0 3px rgba(244,136,27,.32), 0 1px 0 rgba(255,255,255,.9) inset;
+}
+
+/* ---- liquid buttons ---- */
+.chip,.tick,.dot,.btn{position:relative;overflow:hidden;font:inherit;cursor:pointer;border:1px solid var(--line)}
+.chip:active,.tick:active,.dot:active,.btn:active{transform:translateY(1px) scale(.985)}
+.chip,.tick,.dot,.btn{transition:transform .12s ease,box-shadow .2s ease,border-color .2s ease,color .2s ease}
+.chip:focus-visible,.tick:focus-visible,.dot:focus-visible,.btn:focus-visible{outline:2.5px solid var(--ink);outline-offset:2px}
+.ripple{
+  position:absolute;border-radius:50%;transform:scale(0);pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0) 70%);
+  animation:spread .55s ease-out forwards;
+}
+@keyframes spread{to{transform:scale(2.6);opacity:0}}
+
+.opts{display:flex;flex-wrap:wrap;gap:9px}
+.opts.col{flex-direction:column;flex-wrap:nowrap}
+.chip{
+  background:linear-gradient(175deg,rgba(255,255,255,.95),rgba(240,245,252,.8));
+  border-radius:14px;padding:11px 16px;font-size:15px;color:var(--ink-70);text-align:left;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 6px 14px -12px rgba(10,30,61,.7);
+}
+.opts.col .chip{width:100%}
+.chip:hover{border-color:rgba(10,30,61,.26)}
+.chip.on{
+  color:#fff;border-color:transparent;
+  background:linear-gradient(178deg,#173463 0%,#0C2149 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.28) inset, 0 -2px 8px rgba(4,14,34,.35) inset, 0 10px 22px -14px rgba(10,30,61,.95);
+}
+.chip .tag{display:block;font-size:12.5px;color:var(--ink-45);margin-top:2px;line-height:1.45;font-weight:400}
+.chip.on .tag{color:#F9BE76}
+.cap{font-size:12.5px;color:var(--ink-45);margin:10px 0 0}
+
+/* ---- rows & ticks ---- */
+.rows{display:flex;flex-direction:column;gap:0}
+.row{border-top:1px solid var(--line);padding:13px 0 0;margin-top:13px}
+.row:first-child{border-top:0;padding-top:0;margin-top:0}
+.row-l{font-size:15px;font-weight:700;margin:0 0 9px;line-height:1.45}
+.row-l small{display:block;font-weight:400;font-size:12.8px;color:var(--ink-45);margin-top:2px}
+.scale{display:grid;grid-template-columns:repeat(var(--n,5),1fr);gap:6px}
+.tick{
+  background:linear-gradient(175deg,rgba(255,255,255,.95),rgba(240,245,252,.78));
+  border-radius:12px;padding:11px 2px;font-size:13px;color:var(--ink-45);line-height:1.25;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset;font-variant-numeric:tabular-nums;
+}
+.tick.on{
+  color:#fff;border-color:transparent;font-weight:800;
+  background:linear-gradient(178deg,var(--hot-a) 0%,var(--hot-b) 55%,var(--hot-c) 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 -3px 8px rgba(150,70,0,.3) inset, 0 10px 20px -12px rgba(229,114,12,.95);
+}
+.legend{font-size:12.4px;color:var(--ink-45);margin:11px 0 0;line-height:1.6}
+
+/* ---- pre / post ---- */
+.pp{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.pp:first-child{border-top:0;padding-top:0;margin-top:0}
+.pp-l{font-size:15px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;line-height:1.45}
+.delta{
+  border-radius:99px;padding:2px 11px;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:linear-gradient(178deg,var(--aqua-a),var(--aqua-b));color:#fff;
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset, 0 6px 14px -9px rgba(18,168,150,.95);
+}
+.delta.mute{background:rgba(10,30,61,.08);color:var(--ink-45);box-shadow:none}
+.pp-line{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.pp-t{width:48px;flex:none;font-size:12.6px;color:var(--ink-45)}
+.dots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;flex:1}
+.dot{
+  border-radius:11px;padding:9px 0;font-size:13.5px;color:var(--ink-45);
+  background:linear-gradient(175deg,rgba(255,255,255,.95),rgba(240,245,252,.78));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset;font-variant-numeric:tabular-nums;
+}
+.dot.on.before{background:linear-gradient(178deg,#93A3BE,#66799A);color:#fff;border-color:transparent}
+.dot.on.now{
+  color:#fff;border-color:transparent;font-weight:800;
+  background:linear-gradient(178deg,var(--aqua-a),var(--aqua-b));
+  box-shadow:0 1px 0 rgba(255,255,255,.55) inset, 0 8px 18px -11px rgba(18,168,150,.95);
+}
+
+/* ---- nav ---- */
+.nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:45;
+  padding:0 clamp(13px,3vw,24px) calc(clamp(13px,3vw,20px) + env(safe-area-inset-bottom));
+  pointer-events:none;
+}
+.nav-in{
+  max-width:min(720px,100%);margin:0 auto;pointer-events:auto;
+  background:linear-gradient(170deg,rgba(255,255,255,.92),rgba(255,255,255,.74));
+  backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);
+  border:1px solid var(--glass-edge);border-radius:20px;padding:11px;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 20px 44px -24px rgba(10,30,61,.7);
+  display:flex;gap:9px;align-items:center;
+}
+.btn{border-radius:15px;padding:14px 22px;font-size:16px;font-weight:800;letter-spacing:.01em}
+.btn-go{
+  flex:1;color:#fff;border-color:transparent;
+  background:linear-gradient(178deg,var(--hot-a) 0%,var(--hot-b) 52%,var(--hot-c) 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.62) inset, 0 -3px 10px rgba(150,70,0,.32) inset, 0 14px 28px -14px rgba(229,114,12,.95);
+}
+.btn-go::after{
+  content:"";position:absolute;left:8%;right:8%;top:3px;height:38%;border-radius:99px;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0));pointer-events:none;
+}
+.btn-back{
+  background:linear-gradient(175deg,rgba(255,255,255,.9),rgba(238,243,250,.75));
+  color:var(--ink-70);padding:14px 19px;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset;
+}
+.alert{
+  max-width:min(720px,100%);margin:0 auto 9px;pointer-events:auto;
+  background:linear-gradient(170deg,rgba(255,247,244,.96),rgba(255,238,232,.9));
+  border:1px solid rgba(224,110,74,.4);border-radius:14px;
+  padding:9px 14px;font-size:13.6px;color:#B04A24;text-align:center;display:none;
+  box-shadow:0 12px 26px -18px rgba(176,74,36,.8);
+}
+.alert.on{display:block}
+
+/* ---- seal ---- */
+.seal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;pointer-events:none}
+.seal.on{display:flex}
+.seal-in{
+  width:min(38vw,150px);aspect-ratio:1;border-radius:50%;
+  background:linear-gradient(160deg,rgba(46,217,195,.96),rgba(12,138,122,.96));
+  color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:800;font-size:clamp(14px,3vw,17px);text-align:center;line-height:1.35;padding:10px;
+  box-shadow:0 0 0 6px rgba(255,255,255,.55), 0 26px 50px -20px rgba(12,138,122,.9);
+  transform:rotate(-11deg) scale(2);opacity:0;animation:press .68s cubic-bezier(.2,.9,.25,1) forwards;
+}
+.seal-in span{font-size:11.5px;font-weight:700;letter-spacing:.16em;margin-top:5px;opacity:.85}
+@keyframes press{
+  0%{transform:rotate(-11deg) scale(2);opacity:0}
+  40%{transform:rotate(-11deg) scale(.93);opacity:1}
+  56%{transform:rotate(-11deg) scale(1.04);opacity:1}
+  80%{transform:rotate(-11deg) scale(1);opacity:1}
+  100%{transform:rotate(-11deg) scale(1);opacity:0}
+}
+
+/* ---- finish ---- */
+.finish{
+  background:linear-gradient(165deg,#12315E 0%,#0A1E3D 100%);
+  color:#fff;border-radius:22px;padding:clamp(22px,4vw,32px);margin-bottom:16px;
+  box-shadow:0 1px 0 rgba(255,255,255,.16) inset, 0 26px 54px -26px rgba(10,30,61,.9);
+}
+.finish h2{margin:0 0 8px;font-size:clamp(21px,2.2vw+15px,27px);font-weight:800;letter-spacing:-.012em}
+.finish p{margin:0;color:#A6BDDF;font-size:14.8px;max-width:34em}
+.trace{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.tr{
+  background:linear-gradient(170deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.14);border-radius:15px;padding:15px 10px;text-align:center;
+}
+.tr b{display:block;font-size:clamp(23px,4.4vw,30px);font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,#FFD79A,#F9A03F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tr span{display:block;font-size:12.4px;color:#A6BDDF;margin-top:5px;line-height:1.4}
+
+@media (max-width:400px){
+  .tick{font-size:11.8px;padding:10px 1px}
+  .pp-t{width:42px;font-size:12px}
+  .dots{gap:5px}
+  .trace{gap:7px}
+}
+@media (min-width:820px){
+  .q{padding:24px 26px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="field" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+</div>
+
+<div class="topbar"><div class="wrap"><div class="topbar-in">
+  <div class="topbar-row">
+    <p class="topbar-name">完訓教師教學應用成效追蹤</p>
+    <span class="topbar-pos" id="pos"></span>
+  </div>
+  <div class="track" id="track"></div>
+</div></div></div>
+
+<div class="wrap"><main id="main"></main></div>
+
+<div class="nav">
+  <p class="alert" id="alert"></p>
+  <div class="nav-in">
+    <button class="btn btn-back" id="back" type="button">上一步</button>
+    <button class="btn btn-go" id="go" type="button">開始填寫</button>
+  </div>
+</div>
+
+<div class="seal" id="seal" aria-hidden="true"><div class="seal-in" id="sealIn">已完成<span>CHIMEI</span></div></div>
+
+<script>
+/* ===========================================================
+   回收設定：貼上 Google Apps Script 網頁應用程式網址即可
+   =========================================================== */
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzCKN0MFbLuXCGox89slFYxglDQYc3fopoDUz6HpoU3gX-rYytmzA7iMhlfs1H9QlYgDw/exec";
+
+const FREQ = {
+  ticks:["從未","偶爾","有時","經常","幾乎每次"],
+  legend:"偶爾＝三個月 1–2 次　有時＝每月 1–2 次　經常＝每週至少 1 次"
+};
+const USES = { ticks:["0 次","1–2 次","3–5 次","6 次以上"], legend:"請回想過去三個月實際完成的次數" };
+
+const CORE = [
+  ["病人照護","帶學員執行或示範臨床照護，並當場指導"],
+  ["醫學知識","引導學員查證實證資料、進行臨床推理"],
+  ["從工作中學習及成長","要求學員檢討病例、設定改進目標並追蹤"],
+  ["人際關係及溝通技巧","觀察學員與病人、家屬或團隊的溝通並回饋"],
+  ["專業素養","就學員的專業態度給予提醒或肯定"],
+  ["制度下的臨床工作","帶學員理解跨團隊合作、轉診與病安通報"]
+];
+const TOOLS = ["Mini-CEX","CbD","DOPS","360 度評估","OSCE 考官或評分","教學門診","床邊教學查房"];
+
+const ABILITY = [
+  "設定明確的教學目標",
+  "將六大核心能力融入教學",
+  "觀察學員的臨床表現",
+  "選擇適當的評量工具",
+  "給予具體的回饋",
+  "辨識學員需要改善之處",
+  "依學員能力調整教學方式",
+  "擔任臨床教師的信心"
+];
+
+const STEPS = [
+  { key:"intro", skipbar:true },
+
+  { key:"s1", name:"教學現況", title:"教學現況",
+    hint:"先確認您完訓後回到單位，有沒有實際帶教的機會。",
+    qs:[
+      {id:"name",type:"text",label:"姓名",req:true},
+      {id:"dept",type:"text",label:"所屬醫院／科別",req:true,ph:"例：奇美醫院 胸腔內科"},
+      {id:"batch",type:"single",label:"完訓年度／梯次",req:true,
+        opts:["114 年第一梯（5–7 月）","114 年第二梯（7–9 月）","113 年以前完訓"]},
+      {id:"learners",type:"multi",label:"完訓後曾實際指導哪些學員？",sub:"可複選",req:true,
+        opts:["實習醫學生","PGY","住院醫師","醫事職類","其他"],extra:"尚無教學機會"},
+      {id:"freq",type:"single",label:"完訓後平均每月實際參與臨床教學的頻率",req:true,
+        opts:["0 次","1–2 次","3–5 次","6–10 次","10 次以上"]}
+    ]},
+
+  { key:"s2", name:"核心能力", title:"六大核心能力落實情形",
+    hint:"請就過去三個月，您在帶教中實際做到的頻率作答。",
+    qs:[{id:"core",type:"scale",label:"我在臨床帶教中，實際做到下列事項的頻率",req:true,rows:CORE,set:FREQ}]},
+
+  { key:"s3", name:"評估工具", title:"教學評估工具運用",
+    hint:"沒有用到的工具留在 0 次就好，不必勉強。",
+    qs:[
+      {id:"tools",type:"scale",label:"各項工具過去三個月的執行次數",req:true,
+        rows:TOOLS.map(t=>[t,""]),set:USES,cols:4},
+      {id:"talk",type:"single",label:"完成評估後，您是否有當面與學員討論結果？",req:true,
+        opts:["每次都有","多數有","偶爾有","僅填表、未討論"]}
+    ]},
+
+  { key:"s4", name:"回饋技巧", title:"回饋技巧落實情形",
+    hint:"請選最接近您「實際做法」的一項，不是理想做法。",
+    qs:[
+      {id:"fbWhat",type:"single",label:"我給學員回饋時，內容通常是",req:true,col:true,
+        opts:[["整體評語","例如「表現不錯」「再加油」"],["指出哪裡對、哪裡錯",""],
+              ["指出具體行為，並說明為什麼",""],["具體行為 ＋ 原因 ＋ 下一步可執行的做法",""]]},
+      {id:"fbWho",type:"single",label:"回饋過程中，學員的參與程度是",req:true,col:true,
+        opts:[["多為我單向講述",""],["我會問學員自己覺得如何",""],
+              ["請學員先自評，再與我的觀察對焦差異",""],["自評對焦後，共同訂出下次目標並追蹤",""]]}
+    ]},
+
+  { key:"s5", name:"訓練成效", title:"訓練前後自我對照",
+    hint:"同一項能力，分別回想「參加培育訓練前」與「現在」的自己。點完兩排會即時算出成長幅度。",
+    qs:[
+      {id:"pp",type:"prepost",label:"1 分為完全不會，5 分為熟練且能指導他人",req:true,rows:ABILITY},
+      {id:"overall",type:"single",label:"整體而言，本訓練對您臨床教學工作的幫助程度",req:true,
+        opts:["1 完全沒有","2 有限","3 普通","4 明顯","5 非常明顯"]}
+    ]},
+
+  { key:"s6", name:"教學延伸", title:"教學延伸與傳承",
+    hint:"完訓後有沒有把所學帶進科內，這一區兩題就結束。",
+    qs:[
+      {id:"spread",type:"multi",label:"完訓後，您有下列哪些作為？",sub:"可複選",col:true,
+        opts:["在科內分享訓練所學","擔任院內教學課程講師","協助設計教案、評分表或表單","擔任 OSCE 考官",
+              "參與教學競賽或投稿發表","推薦同仁參加師資培育"],extra:"目前尚未有"},
+      {id:"speaker",type:"single",label:"是否願意擔任下年度課程的經驗分享講師？",req:true,
+        opts:["願意","需再考慮，可與我聯繫","目前不方便"]}
+    ]},
+
+  { key:"s7", name:"困難與需求", title:"教學困難與支援需求",
+    hint:"最後一區。這裡的答案會直接決定明年課程開什麼、示範中心怎麼幫您。",
+    qs:[
+      {id:"hard",type:"multi",label:"您在單位落實臨床教學時，遇到哪些困難？",sub:"可複選，最多 3 項",req:true,max:3,col:true,
+        opts:["臨床工作繁重、缺乏教學時間","學員人數少、帶教機會不足","評估表單填寫負擔重",
+              "不確定評分標準如何拿捏","不知如何處理表現不佳的學員","擔心給回饋影響與學員關係",
+              "單位教學文化支持不足","線上系統操作不便"],extra:"目前沒有明顯困難"},
+      {id:"needs",type:"multi",label:"最希望示範中心提供哪些協助？",sub:"可複選，最多 3 項",max:3,col:true,
+        opts:["一對一教學諮詢","實地觀課並給予回饋","進階主題工作坊","現成教案與表單範本",
+              "可自主學習的線上微課程","完訓教師同儕交流社群"]},
+      {id:"topics",type:"multi",label:"希望的延伸課程主題",sub:"可複選",
+        opts:["CCC 臨床能力委員會","困難學員輔導","EPA 可信賴專業活動","進階回饋技巧",
+              "教案設計與命題","AI 輔助教學","醫病共享決策 SDM","教學研究與投稿"]},
+      {id:"story",type:"long",label:"請簡述一個您回單位後實際運用的教學情境",
+        sub:"選填，兩三句就夠，這是最能打動人的材料",
+        ph:"例：帶 PGY 做完 Mini-CEX 後，請他先自評，再一起訂下次的溝通目標。"}
+    ]}
+];
+
+const A = {};      // answers
+const DONE = new Set();
+let cur = 0;
+
+const el=(t,c,h)=>{const n=document.createElement(t);if(c)n.className=c;if(h!=null)n.innerHTML=h;return n;};
+const skip = k => A.freq==="0 次" && ["s2","s3","s4"].includes(k);
+const flow = () => STEPS.filter(s=>!s.skipbar && !skip(s.key));
+
+function ripple(e,btn){
+  const r=btn.getBoundingClientRect(), d=Math.max(r.width,r.height);
+  const s=el("span","ripple");
+  s.style.width=s.style.height=d+"px";
+  s.style.left=((e.clientX||r.left+r.width/2)-r.left-d/2)+"px";
+  s.style.top=((e.clientY||r.top+r.height/2)-r.top-d/2)+"px";
+  btn.appendChild(s); setTimeout(()=>s.remove(),560);
+}
+function wire(btn,fn){ btn.addEventListener("click",e=>{ripple(e,btn);fn(e);}); }
+
+/* ---------- progress ---------- */
+function drawTrack(){
+  const t=document.getElementById("track"); t.innerHTML="";
+  const f=flow();
+  f.forEach(s=>{
+    const i=STEPS.indexOf(s);
+    const b=el("button","seg"); b.type="button"; b.appendChild(el("i"));
+    b.setAttribute("aria-label",s.name);
+    if(DONE.has(s.key)) b.classList.add("filled");
+    if(i===cur) b.classList.add("here","filled");
+    if(DONE.has(s.key)||i<cur){ b.classList.add("tap"); b.onclick=()=>go(i); }
+    t.appendChild(b);
+  });
+  const p=f.findIndex(s=>STEPS.indexOf(s)===cur);
+  document.getElementById("pos").textContent =
+    STEPS[cur].key==="intro" ? "約 5 分鐘" :
+    STEPS[cur].key==="fin"   ? "全部完成" :
+    `${STEPS[cur].name}　${p+1}／${f.length}`;
+}
+
+/* ---------- question renderers ---------- */
+function renderQ(q){
+  const box=el("div","q"); box.dataset.q=q.id;
+  box.appendChild(el("p","q-l",q.label));
+  if(q.sub) box.appendChild(el("p","q-s",q.sub));
+  const body=el("div","q-body"); box.appendChild(body);
+
+  if(q.type==="text"||q.type==="long"){
+    const n=el(q.type==="text"?"input":"textarea");
+    if(q.type==="text") n.type="text";
+    n.placeholder=q.ph||""; n.value=A[q.id]||"";
+    n.oninput=e=>{A[q.id]=e.target.value.trim(); box.classList.remove("miss");};
+    body.appendChild(n);
+  }
+
+  if(q.type==="single"||q.type==="multi"){
+    const list=q.extra ? q.opts.concat([q.extra]) : q.opts;
+    const wrap=el("div","opts"+(q.col?" col":""));
+    if(q.type==="multi"&&!A[q.id]) A[q.id]=[];
+    const paint=()=>wrap.querySelectorAll(".chip").forEach((c,i)=>{
+      const o=list[i], t=Array.isArray(o)?o[0]:o;
+      c.classList.toggle("on", q.type==="single" ? A[q.id]===t : (A[q.id]||[]).includes(t));
+    });
+    list.forEach(o=>{
+      const [txt,tag]=Array.isArray(o)?o:[o,""];
+      const b=el("button","chip",txt+(tag?`<span class="tag">${tag}</span>`:"")); b.type="button";
+      wire(b,()=>{
+        if(q.type==="single"){ A[q.id]=txt; if(q.id==="freq") setTimeout(drawTrack,0); }
+        else{
+          let a=A[q.id].slice();
+          if(a.includes(txt)) a=a.filter(x=>x!==txt);
+          else if(q.extra && txt===q.extra) a=[txt];
+          else{
+            a=a.filter(x=>x!==q.extra);
+            if(q.max && a.length>=q.max) return;
+            a.push(txt);
+          }
+          A[q.id]=a;
+        }
+        paint(); box.classList.remove("miss");
+      });
+      wrap.appendChild(b);
+    });
+    body.appendChild(wrap); paint();
+    if(q.max) body.appendChild(el("p","cap",`最多選 ${q.max} 項`));
+  }
+
+  if(q.type==="scale"){
+    if(!A[q.id]) A[q.id]={};
+    const rows=el("div","rows");
+    q.rows.forEach(([name,desc])=>{
+      const r=el("div","row");
+      r.appendChild(el("p","row-l",name+(desc?`<small>${desc}</small>`:"")));
+      const sc=el("div","scale"); sc.style.setProperty("--n",q.cols||5);
+      q.set.ticks.forEach(t=>{
+        const b=el("button","tick",t); b.type="button";
+        if(A[q.id][name]===t) b.classList.add("on");
+        wire(b,()=>{
+          A[q.id][name]=t;
+          sc.querySelectorAll(".tick").forEach(x=>x.classList.remove("on"));
+          b.classList.add("on"); box.classList.remove("miss");
+        });
+        sc.appendChild(b);
+      });
+      r.appendChild(sc); rows.appendChild(r);
+    });
+    body.appendChild(rows);
+    body.appendChild(el("p","legend",q.set.legend));
+  }
+
+  if(q.type==="prepost"){
+    if(!A[q.id]) A[q.id]={};
+    q.rows.forEach(name=>{
+      if(!A[q.id][name]) A[q.id][name]={before:null,now:null};
+      const v=A[q.id][name];
+      const g=el("div","pp");
+      const lab=el("p","pp-l",name);
+      const badge=el("span","delta mute","—"); lab.appendChild(badge);
+      g.appendChild(lab);
+      const paint=()=>{
+        if(v.before!=null&&v.now!=null){
+          const d=v.now-v.before;
+          badge.textContent = d>0?`成長 +${d}`:(d===0?"持平":String(d));
+          badge.className = "delta"+(d>0?"":" mute");
+        }
+      };
+      [["before","訓練前"],["now","現在"]].forEach(([k,tag])=>{
+        const line=el("div","pp-line");
+        line.appendChild(el("span","pp-t",tag));
+        const dots=el("div","dots");
+        [1,2,3,4,5].forEach(n=>{
+          const b=el("button","dot "+k,String(n)); b.type="button";
+          if(v[k]===n) b.classList.add("on");
+          wire(b,()=>{
+            v[k]=n;
+            dots.querySelectorAll(".dot").forEach(x=>x.classList.remove("on"));
+            b.classList.add("on"); paint(); box.classList.remove("miss");
+          });
+          dots.appendChild(b);
+        });
+        line.appendChild(dots); g.appendChild(line);
+      });
+      paint(); body.appendChild(g);
+    });
+    body.appendChild(el("p","legend","1 完全不會　2 略懂但不敢做　3 尚可　4 熟練　5 能指導他人"));
+  }
+  return box;
+}
+
+/* ---------- page ---------- */
+function render(){
+  const m=document.getElementById("main"); m.innerHTML="";
+  const s=STEPS[cur];
+
+  if(s.key==="intro"){
+    m.appendChild(el("span","tagline","<b></b>培訓護照 · 回程紀錄"));
+    m.appendChild(el("h1",null,"您完訓之後，<br>這些教學真的用上了嗎？"));
+    m.appendChild(el("p","lede","這份紀錄想知道的是：您帶著 7 小時研習營與 40 小時臨床教學實務訓練回到單位後，實際做了什麼、卡在哪裡、還需要什麼支援。"));
+    const f=el("div","facts");
+    ["約 5 分鐘","幾乎全部點選","只有一題需要打字"].forEach(t=>f.appendChild(el("span","fact",t)));
+    m.appendChild(f);
+    m.appendChild(el("div","note","本紀錄不作為個人考核用途，統計結果僅以整體彙總呈現。填寫姓名是為了讓示範中心能針對您勾選的需求提供後續協助。"));
+  }
+  else if(s.key==="fin"){ renderFin(m); }
+  else{
+    const h=el("div","head");
+    h.appendChild(el("h2",null,s.title));
+    h.appendChild(el("p",null,s.hint));
+    m.appendChild(h);
+    s.qs.forEach(q=>m.appendChild(renderQ(q)));
+    if(s.key==="s7" && A.freq==="0 次")
+      m.appendChild(el("div","note","您目前每月教學 0 次，需要實際帶教才能回答的區塊已自動略過。若是機會不足或排程因素，請在上面讓我們知道。"));
+  }
+
+  const back=document.getElementById("back"), go=document.getElementById("go");
+  const f=flow(), last=STEPS.indexOf(f[f.length-1])===cur;
+  back.style.display = (cur===0||s.key==="fin") ? "none":"block";
+  go.style.display = s.key==="fin" ? "none":"block";
+  document.querySelector(".nav").style.display = s.key==="fin" ? "none":"block";
+  go.textContent = s.key==="intro" ? "開始填寫" : (last ? "送出並蓋章":"下一步");
+  document.getElementById("alert").classList.remove("on");
+  drawTrack();
+  window.scrollTo(0,0);
+}
+
+/* ---------- validation ---------- */
+function check(){
+  const s=STEPS[cur]; if(!s.qs) return true;
+  let ok=true, first=null;
+  s.qs.forEach(q=>{
+    if(!q.req) return;
+    const v=A[q.id]; let bad=false;
+    if(q.type==="text") bad=!v;
+    if(q.type==="single") bad=!v;
+    if(q.type==="multi") bad=!v||!v.length;
+    if(q.type==="scale") bad=!v||Object.keys(v).length<q.rows.length;
+    if(q.type==="prepost") bad=!v||q.rows.some(r=>!v[r]||v[r].before==null||v[r].now==null);
+    if(bad){
+      ok=false;
+      const n=document.querySelector(`[data-q="${q.id}"]`);
+      if(n){ n.classList.add("miss"); if(!first) first=n; }
+    }
+  });
+  if(!ok){
+    const a=document.getElementById("alert");
+    a.textContent="還有幾格沒點到，補完就可以往下囉";
+    a.classList.add("on");
+    first&&first.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  return ok;
+}
+
+function seal(name,cb){
+  const s=document.getElementById("seal");
+  document.getElementById("sealIn").firstChild.textContent=name;
+  s.classList.add("on");
+  setTimeout(()=>{s.classList.remove("on");cb&&cb();},600);
+}
+function go(i){ cur=i; render(); }
+
+document.getElementById("back").onclick=()=>{
+  const f=flow(), p=f.findIndex(s=>STEPS.indexOf(s)===cur);
+  if(p>0) go(STEPS.indexOf(f[p-1]));
+};
+wire(document.getElementById("go"),()=>{
+  if(!check()) return;
+  const s=STEPS[cur];
+  const next=()=>{
+    const f=flow(), p=f.findIndex(x=>STEPS.indexOf(x)===cur);
+    if(p<f.length-1) go(STEPS.indexOf(f[p+1])); else submit();
+  };
+  if(s.qs){ DONE.add(s.key); seal(s.name,next); } else next();
+});
+
+/* ---------- submit ---------- */
+function pack(){
+  return {
+    填答時間:new Date().toLocaleString("zh-TW"),
+    姓名:A.name||"", 科別:A.dept||"", 梯次:A.batch||"",
+    指導學員:(A.learners||[]).join("、"), 每月教學頻率:A.freq||"",
+    六大核心能力:A.core||{}, 評估工具次數:A.tools||{}, 評估後回饋:A.talk||"",
+    回饋內容:A.fbWhat||"", 回饋參與:A.fbWho||"",
+    訓練前後:A.pp||{}, 整體幫助程度:A.overall||"",
+    延伸作為:(A.spread||[]).join("、"), 講師意願:A.speaker||"",
+    教學困難:(A.hard||[]).join("、"), 支援需求:(A.needs||[]).join("、"),
+    課程主題:(A.topics||[]).join("、"), 教學情境:A.story||""
+  };
+}
+let SENT = null;   // true 已確認寫入 / "blind" 已送出但無法確認 / false 失敗 / null 未設定網址
+
+function finish_(){
+  STEPS.push({key:"fin",name:"完成",skipbar:true});
+  cur=STEPS.length-1; render();
+}
+
+async function submit(){
+  const d=pack(); window.__result=d;
+  if(!SUBMIT_URL){ SENT=null; finish_(); return; }
+
+  const btn=document.getElementById("go");
+  btn.disabled=true; btn.style.opacity=".62"; btn.textContent="送出中…";
+
+  const body=JSON.stringify(d);
+  const head={"Content-Type":"text/plain;charset=utf-8"};
+  try{
+    const r=await fetch(SUBMIT_URL,{method:"POST",headers:head,body:body,redirect:"follow"});
+    const j=await r.json();
+    SENT = j && j.ok ? true : false;
+  }catch(err){
+    try{
+      await fetch(SUBMIT_URL,{method:"POST",mode:"no-cors",headers:head,body:body});
+      SENT = "blind";
+    }catch(e2){ SENT = false; }
+  }
+  btn.disabled=false; btn.style.opacity="";
+  finish_();
+}
+
+function renderFin(m){
+  const core=A.core||{}, tools=A.tools||{}, pp=A.pp||{};
+  const often=Object.values(core).filter(v=>["經常","幾乎每次"].includes(v)).length;
+  const used=Object.values(tools).filter(v=>v&&v!=="0 次").length;
+  const ds=Object.values(pp).filter(v=>v.before!=null&&v.now!=null).map(v=>v.now-v.before);
+  const avg=ds.length?ds.reduce((a,b)=>a+b,0)/ds.length:0;
+
+  const c=el("div","finish");
+  c.appendChild(el("h2",null,"蓋章完成，謝謝您"));
+  c.appendChild(el("p",null,"以下是您這一年的教學足跡。這些數字會併入示範中心的整體統計，也會決定明年課程要開什麼。"));
+  const t=el("div","trace");
+  [[often,"六大能力<br>經常運用項數"],[used,"實際使用的<br>評估工具數"],[(avg>0?"+":"")+avg.toFixed(1),"自評能力<br>平均成長"]]
+    .forEach(([n,lab])=>{
+      const i=el("div","tr");
+      i.appendChild(el("b",null,String(n)));
+      i.appendChild(el("span",null,lab));
+      t.appendChild(i);
+    });
+  c.appendChild(t); m.appendChild(c);
+
+  if(SENT===true){
+    m.appendChild(el("div","note","填答已寫入試算表，示範中心會依您勾選的需求主動與您聯繫。"));
+    return;
+  }
+  if(SENT==="blind"){
+    m.appendChild(el("div","note","填答已送出。若您稍後想確認是否收到，可與臨床技能中心聯繫。"));
+    return;
+  }
+
+  const fail = SENT===false;
+  m.appendChild(el("div","note", fail
+    ? "連線異常，這筆填答可能沒有送達。請按下方按鈕存檔後回傳給臨床技能中心，您的答案不會遺失。"
+    : "目前尚未設定回收網址，請按下方按鈕儲存檔案後回傳給臨床技能中心。"));
+  const b=el("button","btn btn-go","下載我的填答紀錄");
+  b.type="button"; b.style.width="100%"; b.style.marginTop="12px";
+  wire(b,()=>{
+    const blob=new Blob([JSON.stringify(window.__result,null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=`完訓教師追蹤_${A.name||"未具名"}.json`; a.click();
+  });
+  m.appendChild(b);
+}
+
+render();
+</script>
+</body>
+</html>
