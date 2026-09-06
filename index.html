@@ -403,7 +403,7 @@ const STEPS = [
     ]},
 
   { key:"s7", name:"困難與需求", title:"教學困難與支援需求",
-    hint:"最後一區。這裡的答案會直接決定明年課程開什麼、示範中心怎麼幫您。",
+    hint:"最後一區。這裡的答案會作為示範中心規劃後續課程與支援方式的參考。",
     qs:[
       {id:"hard",type:"multi",label:"您在單位落實臨床教學時，遇到哪些困難？",sub:"可複選，最多 3 項",req:true,max:3,col:true,
         opts:["臨床工作繁重、缺乏教學時間","學員人數少、帶教機會不足","評估表單填寫負擔重",
@@ -706,7 +706,7 @@ function renderFin(m){
 
   const c=el("div","finish");
   c.appendChild(el("h2",null,"蓋章完成，謝謝您"));
-  c.appendChild(el("p",null,"以下是您這一年的教學足跡。這些數字會併入示範中心的整體統計，也會決定明年課程要開什麼。"));
+  c.appendChild(el("p",null,"以下是您這次填答的摘要，留給您自己參考。您的回覆會併入示範中心的整體統計，作為未來課程規劃的參考之一。"));
   const t=el("div","trace");
   [[often,"六大能力<br>經常運用項數"],[used,"實際使用的<br>評估工具數"],[(avg>0?"+":"")+avg.toFixed(1),"自評能力<br>平均成長"]]
     .forEach(([n,lab])=>{
@@ -718,11 +718,11 @@ function renderFin(m){
   c.appendChild(t); m.appendChild(c);
 
   if(SENT===true){
-    m.appendChild(el("div","note","填答已寫入試算表，示範中心會依您勾選的需求主動與您聯繫。"));
+    m.appendChild(el("div","note","紀錄已順利送出，感謝您撥空填答。"));
     return;
   }
   if(SENT==="blind"){
-    m.appendChild(el("div","note","填答已送出。若您稍後想確認是否收到，可與臨床技能中心聯繫。"));
+    m.appendChild(el("div","note","紀錄已送出，感謝您撥空填答。"));
     return;
   }
 
