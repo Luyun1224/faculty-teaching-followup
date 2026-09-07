@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>完訓教師教學應用成效追蹤　儀表板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#0A1E3D; --ink-70:#3D4E6E; --ink-45:#7284A2;
+  --line:rgba(10,30,61,.12);
+  --hot:#F4881B; --hot-d:#E5720C; --aqua:#12A896; --aqua-l:#2ED9C3;
+  --grey:#93A3BE;
+  --card:#FFFFFF;
+  --lift:0 1px 0 rgba(255,255,255,.9) inset, 0 18px 40px -28px rgba(10,30,61,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:#EDF2F9;color:var(--ink);
+  font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(14px,2.4vw,26px)}
+
+/* header */
+header{background:linear-gradient(160deg,#12315E,#0A1E3D);color:#fff;padding:26px 0 22px}
+.h-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+h1{margin:0;font-size:clamp(20px,2vw+13px,27px);font-weight:800;letter-spacing:-.01em}
+.sub{color:#A6BDDF;font-size:13.5px;margin:5px 0 0}
+.ctrl{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+select,.bt{
+  font:inherit;font-size:14px;border-radius:11px;padding:9px 15px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.1);color:#fff;
+}
+select option{color:#0A1E3D}
+.bt.go{background:linear-gradient(178deg,#FFB84D,var(--hot-d));border-color:transparent;font-weight:700}
+.bt:hover{background:rgba(255,255,255,.18)}
+.bt.go:hover{filter:brightness(1.06)}
+
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-top:20px}
+.kpi{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 15px}
+.kpi b{display:block;font-size:clamp(23px,2.4vw,31px);font-weight:800;line-height:1.12;
+  background:linear-gradient(180deg,#FFD79A,#F9A03F);-webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:12.6px;color:#A6BDDF;margin-top:4px}
+
+/* sections */
+main{padding:26px 0 60px}
+.sec{margin-bottom:30px}
+.sec-h{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;margin-bottom:13px}
+.sec-h h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.badge{
+  background:linear-gradient(178deg,#FFE2BC,#FFD09B);color:#8C4B05;
+  border-radius:99px;padding:3px 12px;font-size:12.4px;font-weight:700;white-space:nowrap;
+}
+.badge.t{background:linear-gradient(178deg,#C7F3EA,#A6E9DC);color:#0A6255}
+.sec-h p{margin:0;color:var(--ink-45);font-size:13.4px;flex-basis:100%}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(430px,1fr))}
+.g2>.card:nth-child(3):last-child{grid-column:1/-1}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 19px;box-shadow:var(--lift)}
+.card h3{margin:0 0 3px;font-size:15.5px;font-weight:800}
+.card .cap{margin:0 0 14px;font-size:12.8px;color:var(--ink-45)}
+.chart{position:relative;width:100%}
+.h260{height:260px}.h300{height:300px}.h340{height:340px}.h380{height:380px}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{font-size:12.6px;color:var(--ink-45);font-weight:700}
+tbody tr:last-child td{border-bottom:0}
+
+/* quotes */
+.quotes{display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.quote{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--hot);
+  border-radius:3px 15px 15px 3px;padding:15px 17px;box-shadow:var(--lift)}
+.quote p{margin:0 0 9px;font-size:14.4px;line-height:1.7}
+.quote span{font-size:12.6px;color:var(--ink-45)}
+
+.msg{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:34px 24px;text-align:center;color:var(--ink-45);box-shadow:var(--lift)}
+.msg b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+
+footer{color:var(--ink-45);font-size:12.6px;padding:0 0 40px;text-align:center}
+
+@media print{
+  body{background:#fff}
+  header{background:#0A1E3D !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .ctrl{display:none}
+  .sec{break-inside:avoid;page-break-inside:avoid}
+  .card{break-inside:avoid;page-break-inside:avoid;box-shadow:none}
+  .g2,.g3{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="h-row">
+      <div>
+        <h1>完訓教師教學應用成效追蹤</h1>
+        <p class="sub" id="sub">讀取中…</p>
+      </div>
+      <div class="ctrl">
+        <select id="filter"><option value="">全部梯次</option></select>
+        <button class="bt" id="print" type="button">列印／存 PDF</button>
+        <button class="bt go" id="reload" type="button">重新整理</button>
+      </div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+<footer class="wrap" id="foot"></footer>
+
+<script>
+/* ===== 設定：與 Code.gs 內的 TOKEN 相同 ===== */
+const API   = "https://script.google.com/macros/s/AKfycbzCKN0MFbLuXCGox89slFYxglDQYc3fopoDUz6HpoU3gX-rYytmzA7iMhlfs1H9QlYgDw/exec";
+const TOKEN = "chimei-fd-2025";
+
+const CORE = ['病人照護','醫學知識','從工作中學習及成長','人際關係及溝通技巧','專業素養','制度下的臨床工作'];
+const TOOLS = ['Mini-CEX','CbD','DOPS','360 度評估','OSCE 考官或評分','教學門診','床邊教學查房'];
+const ABILITY = ['設定明確的教學目標','將六大核心能力融入教學','觀察學員的臨床表現','選擇適當的評量工具',
+                 '給予具體的回饋','辨識學員需要改善之處','依學員能力調整教學方式','擔任臨床教師的信心'];
+const FREQ = ['從未','偶爾','有時','經常','幾乎每次'];
+const USES = ['0 次','1–2 次','3–5 次','6 次以上'];
+const FBWHAT = ['整體評語','指出哪裡對、哪裡錯','指出具體行為，並說明為什麼','具體行為 ＋ 原因 ＋ 下一步可執行的做法'];
+const FBWHO  = ['多為我單向講述','我會問學員自己覺得如何','請學員先自評，再與我的觀察對焦差異','自評對焦後，共同訂出下次目標並追蹤'];
+const HELP   = ['1 完全沒有','2 有限','3 普通','4 明顯','5 非常明顯'];
+const FSCORE = {'從未':1,'偶爾':2,'有時':3,'經常':4,'幾乎每次':5};
+const UCOUNT = {'0 次':0,'1–2 次':1.5,'3–5 次':4,'6 次以上':7};
+
+const C = { ink:'#0A1E3D', hot:'#F4881B', hotL:'#FFC07A', aqua:'#12A896', aquaL:'#5FD9C8',
+            grey:'#93A3BE', greyL:'#C3CEDF', soft:'#E3EAF4' };
+const SCALE5 = ['#DDE4EF','#BCCADF','#93A3BE','#F4A94D','#E5720C'];
+const SCALE4 = ['#DDE4EF','#AFC0D8','#F4A94D','#E5720C'];
+
+let RAW = [], VIEW = [], CHARTS = [];
+
+Chart.defaults.font.family = '"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif';
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#3D4E6E';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.padding = 12;
+Chart.defaults.maintainAspectRatio = false;
+Chart.defaults.animation.duration = 500;
+
+/* ---------- 取資料（JSONP） ---------- */
+function load(){
+  document.getElementById('sub').textContent = '讀取中…';
+  const cb = 'cb_' + Date.now();
+  window[cb] = res => {
+    delete window[cb]; s.remove();
+    if(!res || !res.ok){
+      fail(res && res.error === 'token'
+        ? '通行碼不符。請確認儀表板的 TOKEN 與 Code.gs 內設定一致。'
+        : '無法取得資料。請確認 Apps Script 已重新部署為新版本。');
+      return;
+    }
+    RAW = res.records || [];
+    document.getElementById('sub').textContent =
+      `資料更新於 ${res.meta.updated}　共 ${RAW.length} 份填答`;
+    buildFilter(); apply();
+  };
+  const s = document.createElement('script');
+  s.src = `${API}?action=data&token=${encodeURIComponent(TOKEN)}&callback=${cb}`;
+  s.onerror = () => { delete window[cb]; fail('連線失敗，請檢查網址是否正確。'); };
+  document.body.appendChild(s);
+}
+function fail(t){
+  document.getElementById('sub').textContent = '讀取失敗';
+  document.getElementById('kpis').innerHTML = '';
+  document.getElementById('main').innerHTML =
+    `<div class="msg"><b>${t}</b>重新部署後請按「重新整理」再試一次。</div>`;
+}
+
+function buildFilter(){
+  const sel = document.getElementById('filter');
+  const now = sel.value;
+  const set = [...new Set(RAW.map(r => r['梯次']).filter(Boolean))];
+  sel.innerHTML = '<option value="">全部梯次</option>' +
+    set.map(v => `<option${v===now?' selected':''}>${v}</option>`).join('');
+}
+function apply(){
+  const f = document.getElementById('filter').value;
+  VIEW = f ? RAW.filter(r => r['梯次'] === f) : RAW;
+  draw();
+}
+
+/* ---------- 統計工具 ---------- */
+const num = v => (v === '' || v === null || v === undefined) ? null : Number(v);
+const mean = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const r2 = v => Math.round(v*100)/100;
+const r1 = v => Math.round(v*10)/10;
+function tally(field){
+  const t = {};
+  VIEW.forEach(r => String(r[field]||'').split('、').filter(Boolean)
+    .forEach(x => t[x] = (t[x]||0)+1));
+  return Object.entries(t).sort((a,b)=>b[1]-a[1]);
+}
+function dist(field, labels){
+  return labels.map(l => VIEW.filter(r => r[field] === l).length);
+}
+
+/* ---------- 版面元件 ---------- */
+const E = (t,c,h) => { const n=document.createElement(t); if(c)n.className=c; if(h!=null)n.innerHTML=h; return n; };
+function section(title, badge, note, cards, layout){
+  const s = E('section','sec');
+  const h = E('div','sec-h');
+  h.appendChild(E('h2',null,title));
+  if(badge) h.appendChild(E('span','badge',badge));
+  if(note) h.appendChild(E('p',null,note));
+  s.appendChild(h);
+  const g = E('div','grid '+(layout || (cards.length>2?'g3':'g2')));
+  cards.forEach(c => g.appendChild(c));
+  s.appendChild(g);
+  return s;
+}
+function card(title, cap, h){
+  const c = E('div','card');
+  c.appendChild(E('h3',null,title));
+  if(cap) c.appendChild(E('p','cap',cap));
+  const box = E('div','chart '+(h||'h300'));
+  const cv = document.createElement('canvas');
+  box.appendChild(cv); c.appendChild(box);
+  c._canvas = cv;
+  return c;
+}
+function plot(c, cfg){ CHARTS.push(new Chart(c._canvas, cfg)); }
+
+/* ---------- 繪製 ---------- */
+function draw(){
+  CHARTS.forEach(c=>c.destroy()); CHARTS = [];
+  const m = document.getElementById('main'); m.innerHTML = '';
+  const n = VIEW.length;
+
+  if(!n){
+    document.getElementById('kpis').innerHTML = '';
+    m.appendChild(E('div','msg','<b>尚無填答資料</b>問卷回收後，這裡會自動出現統計圖表。'));
+    return;
+  }
+
+  /* ===== KPI ===== */
+  const active = VIEW.filter(r => r['每月教學頻率'] && r['每月教學頻率'] !== '0 次').length;
+  const gains = VIEW.map(r => num(r['平均成長'])).filter(v => v !== null);
+  const speakers = VIEW.filter(r => String(r['講師意願']).indexOf('願意') === 0);
+  const coreHi = mean(CORE.map(c =>
+    VIEW.filter(r => FSCORE[r['能力｜'+c]] >= 4).length / n * 100));
+  const toolAvg = mean(VIEW.map(r =>
+    TOOLS.filter(t => r['工具｜'+t] && r['工具｜'+t] !== '0 次').length));
+
+  document.getElementById('kpis').innerHTML = [
+    [n, '回收份數'],
+    [Math.round(active/n*100)+'%', '完訓後有實際帶教'],
+    [r1(coreHi)+'%', '六大能力經常運用率'],
+    [(mean(gains)>0?'+':'')+r2(mean(gains)), '自評能力平均成長'],
+    [r1(toolAvg), '平均使用評估工具數'],
+    [speakers.length, '願任分享講師']
+  ].map(([v,l]) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join('');
+
+  /* ===== 一、訓練成效（核心證據） ===== */
+  const pre = ABILITY.map(a => mean(VIEW.map(r=>num(r['前｜'+a])).filter(v=>v!==null)));
+  const post= ABILITY.map(a => mean(VIEW.map(r=>num(r['後｜'+a])).filter(v=>v!==null)));
+  const gap = ABILITY.map((a,i) => r2(post[i]-pre[i]));
+
+  const cRadar = card('訓練前後能力雷達圖','八項教學能力，1 分完全不會至 5 分能指導他人','h380');
+  const cGap   = card('各項能力成長幅度','現在平均減去訓練前平均','h380');
+  const cHelp  = card('整體幫助程度分布','教師自評本訓練對臨床教學工作的幫助','h300');
+
+  m.appendChild(section('訓練成效：訓練前後自我對照','自評表 1-2-3 B-1',
+    '追溯式前後測。同一份問卷同時取得訓練前與現在的自評，可直接對照並計算成長幅度，是本次追蹤最主要的量化成效證據。',
+    [cRadar,cGap,cHelp],'g2'));
+
+  const ABBR = ['教學目標','六大能力','觀察表現','評量工具','具體回饋','辨識落差','調整教學','教學信心'];
+  const rLab = window.innerWidth < 700 ? ABBR : ABILITY;
+  plot(cRadar,{type:'radar',data:{labels:rLab,datasets:[
+    {label:'訓練前',data:pre.map(r2),borderColor:C.grey,backgroundColor:'rgba(147,163,190,.22)',
+     pointBackgroundColor:C.grey,borderWidth:2},
+    {label:'現在',data:post.map(r2),borderColor:C.aqua,backgroundColor:'rgba(18,168,150,.24)',
+     pointBackgroundColor:C.aqua,borderWidth:2.5}
+  ]},options:{scales:{r:{min:0,max:5,ticks:{stepSize:1,backdropColor:'transparent'},
+    pointLabels:{font:{size:11}},grid:{color:C.soft},angleLines:{color:C.soft}}},
+    plugins:{tooltip:{callbacks:{title:i=>ABILITY[i[0].dataIndex]}}}}});
+
+  plot(cGap,{type:'bar',data:{labels:ABILITY,datasets:[{data:gap,backgroundColor:C.hot,borderRadius:6}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>'成長 +'+c.raw}}},
+      scales:{x:{beginAtZero:true,grid:{color:C.soft}},y:{ticks:{font:{size:11}},grid:{display:false}}}}});
+
+  plot(cHelp,{type:'bar',data:{labels:HELP,datasets:[
+    {data:dist('整體幫助程度',HELP),backgroundColor:['#DDE4EF','#BCCADF','#93A3BE','#F4A94D','#E5720C'],borderRadius:6}]},
+    options:{plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:C.soft}},x:{grid:{display:false}}}}});
+
+  /* ===== 二、六大核心能力 ===== */
+  const cCoreStack = card('六大核心能力落實頻率分布','過去三個月實際做到的頻率','h340');
+  const cCoreRate  = card('經常運用比率','勾選「經常」或「幾乎每次」的比率','h340');
+
+  m.appendChild(section('六大核心能力應用情形','自評表 1-2-3 B-3',
+    '受訓教師回原單位後，六大核心能力於臨床帶教中的實際落實頻率。以行為頻率取代同意度量表，避免天花板效應。',
+    [cCoreStack,cCoreRate]));
+
+  plot(cCoreStack,{type:'bar',data:{labels:CORE,datasets:FREQ.map((f,i)=>({
+      label:f,data:CORE.map(c=>VIEW.filter(r=>r['能力｜'+c]===f).length),
+      backgroundColor:SCALE5[i],borderRadius:3
+    }))},options:{indexAxis:'y',plugins:{legend:{position:'bottom'}},
+      scales:{x:{stacked:true,beginAtZero:true,ticks:{precision:0},grid:{color:C.soft}},
+              y:{stacked:true,ticks:{font:{size:11}},grid:{display:false}}}}});
+
+  plot(cCoreRate,{type:'bar',data:{labels:CORE,datasets:[{
+      data:CORE.map(c=>r1(VIEW.filter(r=>FSCORE[r['能力｜'+c]]>=4).length/n*100)),
+      backgroundColor:C.aqua,borderRadius:6}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.raw+'%'}}},
+      scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:C.soft}},
+              y:{ticks:{font:{size:11}},grid:{display:false}}}}});
+
+  /* ===== 三、評估工具與回饋 ===== */
+  const cTool  = card('評估工具使用人數','過去三個月曾實際執行的人數','h340');
+  const cTalk  = card('完成評估後是否當面討論','填表而未回饋，代表工具未發揮作用','h300');
+  const cFb    = card('回饋技巧層級分布','行為錨定量表，層級愈高代表回饋品質愈佳','h340');
+
+  m.appendChild(section('教學評估工具與回饋運用','自評表 1-2-3 B-4',
+    '評估工具的使用情形與回饋品質。使用人數呈現廣度，回饋層級呈現深度，兩者併看才能反映教學評估是否真正落實。',
+    [cTool,cTalk,cFb]));
+
+  plot(cTool,{type:'bar',data:{labels:TOOLS,datasets:[
+      {label:'使用人數',data:TOOLS.map(t=>VIEW.filter(r=>r['工具｜'+t]&&r['工具｜'+t]!=='0 次').length),
+       backgroundColor:C.hot,borderRadius:6},
+      {label:'估計總執行次數',data:TOOLS.map(t=>Math.round(VIEW.reduce((s,r)=>s+(UCOUNT[r['工具｜'+t]]||0),0))),
+       backgroundColor:C.aquaL,borderRadius:6}
+    ]},options:{indexAxis:'y',plugins:{legend:{position:'bottom'}},
+      scales:{x:{beginAtZero:true,ticks:{precision:0},grid:{color:C.soft}},
+              y:{ticks:{font:{size:11}},grid:{display:false}}}}});
+
+  const talkLab = ['每次都有','多數有','偶爾有','僅填表、未討論'];
+  plot(cTalk,{type:'doughnut',data:{labels:talkLab,datasets:[
+      {data:dist('評估後回饋',talkLab),backgroundColor:[C.aqua,C.aquaL,C.hotL,C.greyL],borderWidth:0}]},
+    options:{cutout:'58%',plugins:{legend:{position:'bottom'}}}});
+
+  plot(cFb,{type:'bar',data:{labels:['回饋內容','學員參與'],datasets:[0,1,2,3].map(i=>({
+      label:'層級 '+(i+1),
+      data:[VIEW.filter(r=>r['回饋內容']===FBWHAT[i]).length,
+            VIEW.filter(r=>r['回饋參與']===FBWHO[i]).length],
+      backgroundColor:SCALE4[i],borderRadius:3
+    }))},options:{plugins:{legend:{position:'bottom'},
+      tooltip:{callbacks:{afterLabel:c=>c.dataset.label==='層級 4'?'（最理想）':''}}},
+      scales:{x:{stacked:true,grid:{display:false}},
+              y:{stacked:true,beginAtZero:true,ticks:{precision:0},grid:{color:C.soft}}}}});
+
+  /* ===== 四、擴散與傳承 ===== */
+  const spread = tally('延伸作為');
+  const cSpread = card('完訓後的延伸作為','將訓練所學帶回單位並向外擴散的具體行動','h340');
+  const cList = E('div','card');
+  cList.appendChild(E('h3',null,'願任下年度分享講師'));
+  cList.appendChild(E('p','cap','形成教學傳承循環的直接證據，同時是現成的講師名單'));
+  cList.insertAdjacentHTML('beforeend', speakers.length
+    ? `<table><thead><tr><th>姓名</th><th>科別</th><th>梯次</th></tr></thead><tbody>${
+        speakers.map(r=>`<tr><td>${r['姓名']||''}</td><td>${r['科別']||''}</td><td>${r['梯次']||''}</td></tr>`).join('')
+      }</tbody></table>`
+    : '<p class="cap">目前尚無教師勾選「願意」。</p>');
+
+  m.appendChild(section('教學擴散與傳承','自評表 1-2-3 B-5',
+    '完訓教師是否將所學帶回單位、影響他人，是師資培育計畫能否形成循環的關鍵指標。',
+    [cSpread,cList]));
+
+  plot(cSpread,{type:'bar',data:{labels:spread.map(x=>x[0]),datasets:[
+      {data:spread.map(x=>x[1]),backgroundColor:C.ink,borderRadius:6}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.raw+' 人（'+Math.round(c.raw/n*100)+'%）'}}},
+      scales:{x:{beginAtZero:true,ticks:{precision:0},grid:{color:C.soft}},
+              y:{ticks:{font:{size:11}},grid:{display:false}}}}});
+
+  /* ===== 五、困難與需求 ===== */
+  const hard = tally('教學困難'), need = tally('支援需求'), topic = tally('課程主題');
+  const cHard = card('教學困難排序','受訓教師回單位落實教學時遭遇的阻礙','h340');
+  const cNeed = card('支援需求排序','最希望示範中心提供的協助','h340');
+  const cTopic= card('延伸課程主題需求','後續課程規劃的參考依據','h340');
+
+  m.appendChild(section('教學困難與支援需求','自評表 1-2-2',
+    '追蹤結果中最具行動價值的一段。困難點排序指出應改善之處，需求與主題排序則作為後續課程與支援方式的規劃參考。',
+    [cHard,cNeed,cTopic]));
+
+  const bar = (c, arr, color) => plot(c,{type:'bar',
+    data:{labels:arr.map(x=>x[0]),datasets:[{data:arr.map(x=>x[1]),backgroundColor:color,borderRadius:6}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:v=>v.raw+' 人次（'+Math.round(v.raw/n*100)+'%）'}}},
+      scales:{x:{beginAtZero:true,ticks:{precision:0},grid:{color:C.soft}},
+              y:{ticks:{font:{size:10.5}},grid:{display:false}}}}});
+  bar(cHard, hard, '#E0785A');
+  bar(cNeed, need, C.hot);
+  bar(cTopic, topic, C.aqua);
+
+  /* ===== 六、質性回饋 ===== */
+  const stories = VIEW.filter(r => String(r['教學情境']||'').trim());
+  if(stories.length){
+    const s = E('section','sec');
+    const h = E('div','sec-h');
+    h.appendChild(E('h2',null,'教師實際運用情境'));
+    h.appendChild(E('span','badge t','質性佐證'));
+    h.appendChild(E('p',null,`共 ${stories.length} 則。量化數字說明廣度，這些敘述說明教師實際如何運用，兩者互補。`));
+    s.appendChild(h);
+    const q = E('div','quotes');
+    stories.forEach(r => {
+      const d = E('div','quote');
+      d.appendChild(E('p',null,String(r['教學情境'])));
+      d.appendChild(E('span',null,`${r['科別']||''}　${r['梯次']||''}`));
+      q.appendChild(d);
+    });
+    s.appendChild(q);
+    m.appendChild(s);
+  }
+
+  document.getElementById('foot').textContent =
+    `奇美醫學中心臨床技能中心　一般醫學訓練師資培育計畫（7 小時研習營 ＋ 40 小時臨床教學實務訓練）　樣本數 ${n}`;
+}
+
+document.getElementById('reload').onclick = load;
+document.getElementById('filter').onchange = apply;
+document.getElementById('print').onclick = () => window.print();
+load();
+</script>
+</body>
+</html>
