@@ -16,21 +16,21 @@
 }
 *{box-sizing:border-box}
 body{
-  margin:0;background:#EDF2F9;color:var(--ink);
+  margin:0;background:linear-gradient(180deg,#E7EEF8 0,#F4F7FB 420px);color:var(--ink);
   font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;
-  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  font-size:15px;line-height:1.6;font-weight:500;-webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:1240px;margin:0 auto;padding:0 clamp(14px,2.4vw,26px)}
 
 /* header */
-header{background:linear-gradient(160deg,#12315E,#0A1E3D);color:#fff;padding:26px 0 22px}
+header{background:linear-gradient(135deg,#173F75 0,#0A1E3D 62%,#083A47 100%);color:#fff;padding:28px 0 24px;box-shadow:0 12px 32px rgba(10,30,61,.22)}
 .h-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
 h1{margin:0;font-size:clamp(20px,2vw+13px,27px);font-weight:800;letter-spacing:-.01em}
 .sub{color:#A6BDDF;font-size:13.5px;margin:5px 0 0}
 .ctrl{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 select,.bt{
   font:inherit;font-size:14px;border-radius:11px;padding:9px 15px;cursor:pointer;
-  border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.1);color:#fff;
+  border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.13);color:#fff;font-weight:700;
 }
 select option{color:#0A1E3D}
 .bt.go{background:linear-gradient(178deg,#FFB84D,var(--hot-d));border-color:transparent;font-weight:700}
@@ -39,11 +39,11 @@ select option{color:#0A1E3D}
 
 /* kpi */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-top:20px}
-.kpi{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 15px}
+.kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:15px 16px;box-shadow:0 9px 24px rgba(0,0,0,.08)}
 .kpi b{display:block;font-size:clamp(23px,2.4vw,31px);font-weight:800;line-height:1.12;
   background:linear-gradient(180deg,#FFD79A,#F9A03F);-webkit-background-clip:text;background-clip:text;color:transparent;
   font-variant-numeric:tabular-nums}
-.kpi span{display:block;font-size:12.6px;color:#A6BDDF;margin-top:4px}
+.kpi span{display:block;font-size:12.6px;color:#C6D7EF;margin-top:4px;font-weight:700}
 
 /* sections */
 main{padding:26px 0 60px}
@@ -55,22 +55,22 @@ main{padding:26px 0 60px}
   border-radius:99px;padding:3px 12px;font-size:12.4px;font-weight:700;white-space:nowrap;
 }
 .badge.t{background:linear-gradient(178deg,#C7F3EA,#A6E9DC);color:#0A6255}
-.sec-h p{margin:0;color:var(--ink-45);font-size:13.4px;flex-basis:100%}
+.sec-h p{margin:0;color:var(--ink-70);font-size:13.4px;flex-basis:100%;font-weight:600}
 
 .grid{display:grid;gap:14px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(430px,1fr))}
 .g2>.card:nth-child(3):last-child{grid-column:1/-1}
 .g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 19px;box-shadow:var(--lift)}
+.card{background:var(--card);border:1px solid rgba(10,30,61,.14);border-top:3px solid rgba(18,168,150,.7);border-radius:16px;padding:17px 19px 19px;box-shadow:0 14px 34px -22px rgba(10,30,61,.52)}
 .card h3{margin:0 0 3px;font-size:15.5px;font-weight:800}
-.card .cap{margin:0 0 14px;font-size:12.8px;color:var(--ink-45)}
+.card .cap{margin:0 0 14px;font-size:12.8px;color:var(--ink-70);font-weight:600}
 .chart{position:relative;width:100%}
 .h260{height:260px}.h300{height:300px}.h340{height:340px}.h380{height:380px}
 
 /* table */
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
-th{font-size:12.6px;color:var(--ink-45);font-weight:700}
+th{font-size:12.6px;color:var(--ink-70);font-weight:800}
 tbody tr:last-child td{border-bottom:0}
 
 /* quotes */
@@ -143,12 +143,55 @@ const SCALE4 = ['#DDE4EF','#AFC0D8','#F4A94D','#E5720C'];
 let RAW = [], VIEW = [], CHARTS = [];
 
 Chart.defaults.font.family = '"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif';
-Chart.defaults.font.size = 12;
-Chart.defaults.color = '#3D4E6E';
+Chart.defaults.font.size = 12.5;
+Chart.defaults.font.weight = '600';
+Chart.defaults.color = '#263B5C';
 Chart.defaults.plugins.legend.labels.boxWidth = 12;
 Chart.defaults.plugins.legend.labels.padding = 12;
 Chart.defaults.maintainAspectRatio = false;
 Chart.defaults.animation.duration = 500;
+
+/* 讓圖表截圖時也能直接讀值，不必依賴滑鼠提示。 */
+const barValueLabels = {
+  id:'barValueLabels',
+  afterDatasetsDraw(chart, args, opts){
+    if(chart.config.type !== 'bar' || opts.display === false) return;
+    const horizontal = chart.options.indexAxis === 'y';
+    const stacked = horizontal ? chart.options.scales?.x?.stacked : chart.options.scales?.y?.stacked;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.font = `800 ${opts.fontSize || 12}px ${Chart.defaults.font.family}`;
+    ctx.textBaseline = 'middle';
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      if(meta.hidden) return;
+      meta.data.forEach((element, index) => {
+        const value = Number(dataset.data[index]);
+        if(!Number.isFinite(value) || value === 0) return;
+        const label = opts.formatter ? opts.formatter(value, dataset, index) : String(value);
+        const pos = element.tooltipPosition();
+        let x, y, align;
+        if(stacked){
+          x = horizontal ? (element.base + element.x) / 2 : pos.x;
+          y = horizontal ? pos.y : (element.base + element.y) / 2;
+          align = 'center';
+          ctx.fillStyle = opts.stackedColor || '#0A1E3D';
+        }else if(horizontal){
+          x = element.x + 7; y = pos.y; align = 'left';
+          ctx.fillStyle = opts.color || '#0A1E3D';
+        }else{
+          x = pos.x; y = element.y - 9; align = 'center';
+          ctx.fillStyle = opts.color || '#0A1E3D';
+        }
+        ctx.textAlign = align;
+        ctx.fillText(label, x, y);
+      });
+    });
+    ctx.restore();
+  }
+};
+Chart.register(barValueLabels);
+Chart.defaults.plugins.barValueLabels = {display:true};
 
 /* ---------- 取資料（JSONP） ---------- */
 function load(){
@@ -231,7 +274,14 @@ function card(title, cap, h){
   c._canvas = cv;
   return c;
 }
-function plot(c, cfg){ CHARTS.push(new Chart(c._canvas, cfg)); }
+function plot(c, cfg){
+  if(cfg.type === 'bar'){
+    cfg.options = cfg.options || {};
+    cfg.options.layout = cfg.options.layout || {};
+    cfg.options.layout.padding = Object.assign({top:18,right:42},cfg.options.layout.padding || {});
+  }
+  CHARTS.push(new Chart(c._canvas, cfg));
+}
 
 /* ---------- 繪製 ---------- */
 function draw(){
@@ -289,7 +339,8 @@ function draw(){
 
   plot(cGap,{type:'bar',data:{labels:ABILITY,datasets:[{data:gap,backgroundColor:C.hot,borderRadius:6}]},
     options:{indexAxis:'y',plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:c=>'成長 +'+c.raw}}},
+      barValueLabels:{formatter:v=>(v>0?'+':'')+v},
+      tooltip:{callbacks:{label:c=>'成長 '+(c.raw>0?'+':'')+c.raw}}},
       scales:{x:{beginAtZero:true,grid:{color:C.soft}},y:{ticks:{font:{size:11}},grid:{display:false}}}}});
 
   plot(cHelp,{type:'bar',data:{labels:HELP,datasets:[
@@ -316,6 +367,7 @@ function draw(){
       data:CORE.map(c=>r1(VIEW.filter(r=>FSCORE[r['能力｜'+c]]>=4).length/n*100)),
       backgroundColor:C.aqua,borderRadius:6}]},
     options:{indexAxis:'y',plugins:{legend:{display:false},
+      barValueLabels:{formatter:v=>v+'%'},
       tooltip:{callbacks:{label:c=>c.raw+'%'}}},
       scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:C.soft}},
               y:{ticks:{font:{size:11}},grid:{display:false}}}}});
