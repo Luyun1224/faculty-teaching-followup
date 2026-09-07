@@ -8,16 +8,16 @@
 <style>
 :root{
   --ink:#0A1E3D;
-  --ink-70:#3D4E6E;
-  --ink-45:#7284A2;
-  --line:rgba(10,30,61,.13);
+  --ink-70:#304463;
+  --ink-45:#5F7394;
+  --line:rgba(10,30,61,.20);
   --hot-a:#FFB84D;
   --hot-b:#F4881B;
   --hot-c:#E5720C;
   --aqua-a:#2ED9C3;
   --aqua-b:#12A896;
-  --glass:linear-gradient(170deg,rgba(255,255,255,.90),rgba(255,255,255,.62));
-  --glass-edge:rgba(255,255,255,.85);
+  --glass:linear-gradient(170deg,rgba(255,255,255,.96),rgba(245,249,253,.84));
+  --glass-edge:rgba(255,255,255,.96);
   --lift:0 1px 0 rgba(255,255,255,.9) inset, 0 20px 44px -28px rgba(10,30,61,.55);
   --radius:18px;
 }
@@ -26,7 +26,7 @@ html{-webkit-text-size-adjust:100%}
 body{
   margin:0;min-height:100dvh;
   color:var(--ink);
-  background:#EDF2F9;
+  background:#E5EDF7;
   font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC","Hiragino Sans TC",system-ui,sans-serif;
   font-size:clamp(15px,1.05vw + 12.5px,16.5px);
   line-height:1.62;
@@ -69,7 +69,7 @@ body{
 .seg.here{background:rgba(255,255,255,.3)}
 .seg.here i{background:linear-gradient(90deg,var(--hot-a),var(--hot-c));box-shadow:0 0 10px rgba(244,136,27,.65);transform:scaleX(.42)}
 
-main{padding:clamp(20px,3.5vw,34px) 0 clamp(120px,16vw,150px)}
+main{padding:clamp(20px,3.5vw,34px) 0 20px}
 
 /* ---- type ---- */
 .tagline{
@@ -108,7 +108,7 @@ h1{font-size:clamp(24px,3.4vw + 14px,34px);line-height:1.28;margin:0 0 14px;lett
 }
 .q.miss{border-color:rgba(224,110,74,.75);box-shadow:0 0 0 3px rgba(224,110,74,.13), var(--lift)}
 .q-l{font-size:clamp(15.5px,.6vw+14px,17px);font-weight:700;margin:0;line-height:1.5}
-.q-s{font-size:13.5px;color:var(--ink-45);margin:4px 0 0}
+.q-s{font-size:13.5px;color:var(--ink-70);margin:4px 0 0}
 .q-body{margin-top:14px}
 
 input[type=text],textarea{
@@ -124,7 +124,7 @@ input[type=text]:focus,textarea:focus{
 }
 
 /* ---- liquid buttons ---- */
-.chip,.tick,.dot,.btn{position:relative;overflow:hidden;font:inherit;cursor:pointer;border:1px solid var(--line)}
+.chip,.tick,.dot,.btn{position:relative;overflow:hidden;font:inherit;cursor:pointer;border:1px solid var(--line);touch-action:manipulation}
 .chip:active,.tick:active,.dot:active,.btn:active{transform:translateY(1px) scale(.985)}
 .chip,.tick,.dot,.btn{transition:transform .12s ease,box-shadow .2s ease,border-color .2s ease,color .2s ease}
 .chip:focus-visible,.tick:focus-visible,.dot:focus-visible,.btn:focus-visible{outline:2.5px solid var(--ink);outline-offset:2px}
@@ -199,13 +199,12 @@ input[type=text]:focus,textarea:focus{
 
 /* ---- nav ---- */
 .nav{
-  position:fixed;left:0;right:0;bottom:0;z-index:45;
-  padding:0 clamp(13px,3vw,24px) calc(clamp(13px,3vw,20px) + env(safe-area-inset-bottom));
-  pointer-events:none;
+  position:relative;z-index:45;
+  padding:0 clamp(13px,3vw,24px) calc(clamp(20px,4vw,32px) + env(safe-area-inset-bottom));
 }
 .nav-in{
-  max-width:min(720px,100%);margin:0 auto;pointer-events:auto;
-  background:linear-gradient(170deg,rgba(255,255,255,.92),rgba(255,255,255,.74));
+  max-width:min(720px,100%);margin:0 auto;
+  background:linear-gradient(170deg,rgba(255,255,255,.97),rgba(243,247,252,.90));
   backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);
   border:1px solid var(--glass-edge);border-radius:20px;padding:11px;
   box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 20px 44px -24px rgba(10,30,61,.7);
@@ -277,6 +276,11 @@ input[type=text]:focus,textarea:focus{
   .pp-t{width:42px;font-size:12px}
   .dots{gap:5px}
   .trace{gap:7px}
+}
+@media (hover:none) and (pointer:coarse){
+  .q,.topbar-in,.nav-in{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .ripple{display:none}
+  .chip,.tick,.dot,.btn{transition-duration:.06s}
 }
 @media (min-width:820px){
   .q{padding:24px 26px}
@@ -430,6 +434,7 @@ const skip = k => A.freq==="0 次" && ["s2","s3","s4"].includes(k);
 const flow = () => STEPS.filter(s=>!s.skipbar && !skip(s.key));
 
 function ripple(e,btn){
+  if(window.matchMedia("(hover:none) and (pointer:coarse)").matches) return;
   const r=btn.getBoundingClientRect(), d=Math.max(r.width,r.height);
   const s=el("span","ripple");
   s.style.width=s.style.height=d+"px";
@@ -650,7 +655,11 @@ wire(document.getElementById("go"),()=>{
     const f=flow(), p=f.findIndex(x=>STEPS.indexOf(x)===cur);
     if(p<f.length-1) go(STEPS.indexOf(f[p+1])); else submit();
   };
-  if(s.qs){ DONE.add(s.key); seal(s.name,next); } else next();
+  if(s.qs){
+    DONE.add(s.key);
+    const f=flow(), isLast=STEPS.indexOf(f[f.length-1])===cur;
+    if(isLast) seal(s.name,next); else next();
+  } else next();
 });
 
 /* ---------- submit ---------- */
